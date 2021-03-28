@@ -75,12 +75,11 @@ speed_test() {
 
 speed() {
     speed_test '' 'Speedtest.net'
-    speed_test '38334' 'OOPAYA SAS (Émerainville, France)'
-    speed_test '24215'  'ORANGE FRANCE (Paris, France)'
-    speed_test '12746'  'SFR (Paris, France)'
-    speed_test '5022' 'ONLINE S.A.S. (Vitry-sur-Seine, France)'
-    speed_test '23282' 'ORANGE FRANCE (Rennes, France)'
-    speed_test '21415' 'LaFibre.info (Bordeaux, France)'
+    speed_test '38334' 'OOPAYA SAS'
+    speed_test '24215'  'Paris'
+    speed_test '5022' 'Vitry-sur-Seine'
+    speed_test '23282' 'Rennes'
+    speed_test '21415' 'Bordeaux'
 }
 
 io_test() {
