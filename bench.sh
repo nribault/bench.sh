@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Description: Auto test download & I/O speed script
+# Description: Auto test download, I/O speed & Geekbench script
 #
 #
 trap _exit INT QUIT TERM
@@ -172,6 +172,56 @@ install_speedtest() {
     fi
 }
 
+gbench () {
+	echo "Geekbench Benchmark (Experimental)"
+	echo ""
+
+	echo "Note: The benchmark might not always work (eg: missing dependencies)."
+	echo "Failures are highly possible. We're using Geekbench for this test."
+	echo ""
+
+        page=https://www.geekbench.com/download/linux/
+        dl=$(wget -qO - $page | \
+                    grep href | \
+                    sed -n 's/.*\(https\?:[^:]*\.tar\.gz\).*/\1/p')
+
+        noext=${dl##*/}
+        noext=${noext%.tar.gz}
+
+        name=${noext//-/ }
+
+	echo "File is located at $dl"
+	echo "Downloading and extracting $name"
+
+        wget -qO - "$dl" | tar xzv 2>&1 >/dev/null
+
+	echo ""
+	echo "Starting $name"
+
+	echo "The system benchmark may take a while.  Don't close your terminal/SSH session!"
+
+	if (( $( getconf LONG_BIT ) == 64 )); then
+		$noext/geekbench_x86_64 > $noext/logfile
+	else
+		$noext/geekbench_x86_32 > $noext/logfile
+	fi
+
+    resulturl=$(cat $noext/logfile | grep "browser.geekbench.com" | grep -v "claim")
+
+    score=$(wget -qO- $resulturl | grep "class='score'" | head -n 1 | awk -F \> '{print $2}' | awk -F \< '{print $1}')
+    mcore=$(wget -qO- $resulturl | grep "class='score'" | head -n 2 | tail -n 1 | awk -F \> '{print $2}' | awk -F \< '{print $1}')
+
+    echo "Test Finished"
+    echo " Single-Core          : $(_blue "$score")"
+    echo " Multi-Core           : $(_blue "$mcore")" 
+
+	echo "Finished. Removing Geekbench files"
+	sleep 1
+	rm -rf $noext
+
+	echo ""
+}
+
 ! _exists "wget" && _red "Error: wget command not found. You must be install wget command at first.\n" && exit 1
 # Get System information
 cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
@@ -238,4 +288,6 @@ echo -e " Average I/O speed     : $(_yellow "$ioavg MB/s")"
 next
 install_speedtest && printf "%-18s%-18s%-20s%-12s\n" " Node Name" "Upload Speed" "Download Speed" "Latency"
 speed && rm -fr speedtest-cli
+next
+gbench
 next
