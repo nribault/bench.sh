@@ -3,6 +3,11 @@
 # Description: Auto test download, I/O speed & Geekbench script
 #
 #
+if [[ $(id -u) != 0 ]];then
+    echo "You had to start this script as root"
+    exit 
+fi
+
 trap _exit INT QUIT TERM
 
 _red() {
