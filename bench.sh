@@ -211,10 +211,12 @@ gbench () {
     score=$(wget -qO- $resulturl | grep "class='score'" | head -n 1 | awk -F \> '{print $2}' | awk -F \< '{print $1}')
     mcore=$(wget -qO- $resulturl | grep "class='score'" | head -n 2 | tail -n 1 | awk -F \> '{print $2}' | awk -F \< '{print $1}')
 
+    echo ""
     echo "Test Finished"
     echo " Single-Core          : $(_blue "$score")"
     echo " Multi-Core           : $(_blue "$mcore")" 
-
+    echo ""
+    
 	echo "Finished. Removing Geekbench files"
 	sleep 1
 	rm -rf $noext
